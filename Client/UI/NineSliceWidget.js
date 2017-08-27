@@ -14,7 +14,5 @@ class NineSliceWidget extends ScreenEntity
     constructor(pos, rot)
     {
         super(pos, rot);
-
-        
     }
 }
