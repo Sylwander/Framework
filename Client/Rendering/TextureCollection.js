@@ -11,13 +11,13 @@ class TextureCollection
 
     constructor(urls, loadedCallback = null)
     {
-        this.numTexturesLoaded = 0;             // Keeps track of how many textures have been loaded
+        this.numTexturesToLoad = urls.length;   // Keeps track of how many textures are left to load
         this.loadedCallback = loadedCallback;   // Optional callback that fires when all textures have been loaded
 
         this.textures = [];                     // Create an array of textures from urls
-        for (i = 0; i < urls.length; i++)
+        for (var i = 0; i < urls.length; i++)
         {
-            this.textures.push( new Texture(urls[i], this.onTextureLoaded()) );
+            this.textures.push( new Texture(urls[i], this.onTextureLoaded.bind(this)) );
         }
     }
 
@@ -26,9 +26,9 @@ class TextureCollection
 
     onTextureLoaded()
     {
-        this.numTexturesLoaded++;
+        this.numTexturesToLoad--;
 
-        if (this.numTexturesLoaded == this.textures.length && this.loadedCallback != null)
+        if (this.numTexturesToLoad == 0 && this.loadedCallback != null)
         {
             this.loadedCallback();
         }

@@ -16,14 +16,22 @@ class Texture
         this.loadedCallback = loadedCallback;   // Optional callback that fires when textures has been loaded
 
         this.img = new Image();                 // Create an empty image
-        this.img.onload = this.onLoad();        // Set loaded callback
-        this.img.url = url;                     // Trigger loading from URL
+        this.img.src = url;                     // Trigger loading from URL
+
+        if (this.img.complete)                  // Either the image is cached, so loaded immediately
+        {
+            this.onLoaded(this);
+        }
+        else                                    // Or we need to register a callback for the load event
+        {
+            this.img.addEventListener('load', this.onLoaded.bind(this));
+        }
     }
 
-    // onLoad
+    // onLoaded
     /////////////////////////////////////////////////////////////////////////
 
-    onLoad()
+    onLoaded()
     {
         this.loaded = true;
 
