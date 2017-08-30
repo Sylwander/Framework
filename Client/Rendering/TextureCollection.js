@@ -9,15 +9,25 @@ class TextureCollection
     // Constructor
     /////////////////////////////////////////////////////////////////////////
 
-    constructor(urls, loadedCallback = null)
+    constructor(urls)
     {
-        this.numTexturesToLoad = urls.length;   // Keeps track of how many textures are left to load
-        this.loadedCallback = loadedCallback;   // Optional callback that fires when all textures have been loaded
-
+        this.urls = urls;                       // Store the urls
         this.textures = [];                     // Create an array of textures from urls
-        for (var i = 0; i < urls.length; i++)
+        this.numTexturesToLoad = urls.length;   // Keeps track of how many textures are left to load
+        this.loadedCallback = null;             // Optional callback that fires when all textures have been loaded
+    }
+
+    // loadTextures
+    /////////////////////////////////////////////////////////////////////////
+
+    loadTextures(loadedCallback = null)
+    {
+        this.loadedCallback = loadedCallback;
+        for (var i = 0; i < this.urls.length; i++)
         {
-            this.textures.push( new Texture(urls[i], this.onTextureLoaded.bind(this)) );
+            let t = new Texture(this.urls[i]);
+            this.textures.push( t );
+            t.load(this.onTextureLoaded.bind(this));
         }
     }
 
@@ -32,5 +42,13 @@ class TextureCollection
         {
             this.loadedCallback();
         }
+    }
+
+    // numTextures
+    /////////////////////////////////////////////////////////////////////////
+
+    get numTextures()
+    {
+        return this.textures.length;
     }
 }
