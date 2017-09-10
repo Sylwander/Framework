@@ -35,6 +35,16 @@ class NineSliceWidget extends ScreenEntity
         this.textures.loadTextures(this.onTexturesLoaded.bind(this));
     }
 
+    // setInnerSize
+    /////////////////////////////////////////////////////////////////////////
+
+    setInnerSize(innerSize)
+    {
+        this.innerSize = new Vec2(innerSize.x, innerSize.y);
+        this.updateAABB();
+        this.updateSlices();
+    }
+
     // onTextureLoaded
     /////////////////////////////////////////////////////////////////////////
 
@@ -70,6 +80,7 @@ class NineSliceWidget extends ScreenEntity
 
     // updateSlices
     /////////////////////////////////////////////////////////////////////////
+
     updateSlices()
     {
         if (this.textures.numTextures != 9)
@@ -111,7 +122,9 @@ class NineSliceWidget extends ScreenEntity
 
     draw(ctx)
     {
-        if (this.textures.numTextures != 9)
+        if (this.textures.numTextures != 9 ||
+            this.slicePositions.length != 9 ||
+            this.sliceSizes.length != 9)
             return;
 
         for (var i = 0; i < this.textures.numTextures; i++)

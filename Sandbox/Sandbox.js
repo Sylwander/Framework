@@ -17,5 +17,30 @@ canvas.height = window.innerHeight;
 document.body.appendChild(canvas);
 var ctx = canvas.getContext("2d");
 
-widget.draw(ctx);
+widgetWidth.onchange = widgetWidth.oninput = function()
+{
+    widget.setInnerSize(new Vec2(parseInt(this.value), widget.innerSize.y));
+};
 
+widgetHeight.onchange = widgetHeight.oninput = function()
+{
+    widget.setInnerSize(new Vec2(widget.innerSize.x, parseInt(this.value)));
+};
+
+function main()
+{
+    ctx.fillStyle = "#666666";
+    ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+    widget.draw(ctx);
+
+    requestAnimationFrame(main);
+};
+
+// Cross-browser support for requestAnimationFrame
+requestAnimationFrame = window.requestAnimationFrame ||
+                        window.webkitRequestAnimationFrame ||
+                        window.msRequestAnimationFrame ||
+                        window.mozRequestAnimationFrame;
+
+main();
