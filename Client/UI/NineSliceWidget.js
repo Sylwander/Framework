@@ -29,7 +29,9 @@ class NineSliceWidget extends ScreenEntity
         super(pos, rot);
 
         this.innerSize = innerSize;
-        this.textures = new TextureCollection(textureUrls);
+        this.slicePositions = [];
+        this.sliceSizes = [];
+        this.textures = new TextureCollection(textureUrls);        
         this.textures.loadTextures(this.onTexturesLoaded.bind(this));
     }
 
@@ -38,7 +40,16 @@ class NineSliceWidget extends ScreenEntity
 
     onTexturesLoaded()
     {
+        if (this.textures.numTextures != 9)
+        {
+            console.assert(false, "NineSliceWidget requires exactly nine textures.");
+            return;
+        }
+
         this.updateAABB();
+        this.updateSlices();
+
+        console.log("NineSliceWidget Loaded");
     }
 
     // updateAABB
@@ -47,10 +58,7 @@ class NineSliceWidget extends ScreenEntity
     updateAABB()
     {
         if (this.textures.numTextures != 9)
-        {
-            console.assert(false, "NineSliceWidget requires exactly nine textures.");
             return;
-        }
 
         const tc = this.textures;
         const totalWidth = tc.textures[0].img.width + this.innerSize.x + tc.textures[2].img.width;
@@ -58,5 +66,58 @@ class NineSliceWidget extends ScreenEntity
 
         this.aabb.min = new Vec2(this.pos.x, this.pos.y);
         this.aabb.max = new Vec2(this.pos.x + totalWidth, this.pos.y + totalHeight);
+    }
+
+    // updateSlices
+    /////////////////////////////////////////////////////////////////////////
+    updateSlices()
+    {
+        if (this.textures.numTextures != 9)
+            return;
+
+        const tc = this.textures;
+        let pos = new Vec2(this.pos.x, this.pos.y);
+
+        this.slicePositions = [];
+        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x += tc.textures[0].img.width;
+        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x += this.innerSize.x;
+        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x = this.pos.x;                 pos.y += tc.textures[0].img.height;
+
+        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x += tc.textures[3].img.width;
+        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x += this.innerSize.x;
+        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x = this.pos.x;                 pos.y += this.innerSize.y;
+
+        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x += tc.textures[6].img.width;
+        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x += this.innerSize.x;
+        this.slicePositions.push(new Vec2(pos.x, pos.y));
+
+        this.sliceSizes = [ 
+                            new Vec2(tc.textures[0].img.width, tc.textures[0].img.height),
+                            new Vec2(this.innerSize.x, tc.textures[1].img.height),
+                            new Vec2(tc.textures[2].img.width, tc.textures[2].img.height),
+                            
+                            new Vec2(tc.textures[3].img.width, this.innerSize.y),
+                            new Vec2(this.innerSize.x, this.innerSize.y),
+                            new Vec2(tc.textures[5].img.width, this.innerSize.y),
+                        
+                            new Vec2(tc.textures[6].img.width, tc.textures[6].img.height),
+                            new Vec2(this.innerSize.x, tc.textures[7].img.height),
+                            new Vec2(tc.textures[8].img.width, tc.textures[8].img.height)
+                          ];
+    }
+
+    // draw
+    /////////////////////////////////////////////////////////////////////////
+
+    draw(ctx)
+    {
+        if (this.textures.numTextures != 9)
+            return;
+
+        for (var i = 0; i < this.textures.numTextures; i++)
+        {
+            let tex = this.textures.textures[i].img;
+            ctx.drawImage(tex, this.slicePositions[i].x, this.slicePositions[i].y, this.sliceSizes[i].x, this.sliceSizes[i].y);
+        }
     }
 }
