@@ -35,6 +35,16 @@ class NineSliceWidget extends ScreenEntity
         this.textures.loadTextures(this.onTexturesLoaded.bind(this));
     }
 
+    // setPos
+    /////////////////////////////////////////////////////////////////////////
+
+    setPos(pos)
+    {
+        super.setPos(pos);
+        this.updateAABB();
+        this.updateSlices();
+    }
+
     // setInnerSize
     /////////////////////////////////////////////////////////////////////////
 

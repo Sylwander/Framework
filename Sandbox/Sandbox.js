@@ -1,4 +1,7 @@
 
+// Create NineSliceWidget
+/////////////////////////////////////////////////////////////////////////
+
 const urls = [ "http://html5.sylwander.com/framework/data/textures/UI/NineSliceTemplates/PostItSmall/PostItSmall_01.png",
                "http://html5.sylwander.com/framework/data/textures/UI/NineSliceTemplates/PostItSmall/PostItSmall_02.png",
                "http://html5.sylwander.com/framework/data/textures/UI/NineSliceTemplates/PostItSmall/PostItSmall_03.png",
@@ -11,11 +14,58 @@ const urls = [ "http://html5.sylwander.com/framework/data/textures/UI/NineSliceT
 
 let widget = new NineSliceWidget(new Vec2(100,100), 0, new Vec2(200,200), urls);
 
+// Create canvas
+/////////////////////////////////////////////////////////////////////////
+
 var canvas = document.createElement("canvas");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 document.body.appendChild(canvas);
 var ctx = canvas.getContext("2d");
+
+// Mouse input
+/////////////////////////////////////////////////////////////////////////
+
+addEventListener("mousedown", handleMouseDown, false);
+addEventListener("mouseup", handleMouseUp, false);
+addEventListener("mousemove", handleMouseMove, false);
+
+let isDragging = false;
+let dragOffset = null;
+
+function getMousePos(canvas, event)
+{
+	var rect = canvas.getBoundingClientRect();
+	return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+}
+
+function handleMouseDown(e)
+{
+    let mousePos = getMousePos(canvas, e);
+    if (widget.aabb.isPointInside(mousePos))
+    {
+        isDragging = true;
+        dragOffset = Vec2.subtract(mousePos, widget.pos);
+    }
+};
+
+function handleMouseUp(e)
+{
+    isDragging = false;
+};
+
+function handleMouseMove(e)
+{
+    if (isDragging)
+    {
+        let mousePos = getMousePos(canvas, e);
+        let newPos = Vec2.subtract(mousePos, dragOffset);
+        widget.setPos(newPos);
+    }
+};
+
+// Widget size sliders
+/////////////////////////////////////////////////////////////////////////
 
 widgetWidth.onchange = widgetWidth.oninput = function()
 {
@@ -26,6 +76,9 @@ widgetHeight.onchange = widgetHeight.oninput = function()
 {
     widget.setInnerSize(new Vec2(widget.innerSize.x, parseInt(this.value)));
 };
+
+// Main loop
+/////////////////////////////////////////////////////////////////////////
 
 function main()
 {

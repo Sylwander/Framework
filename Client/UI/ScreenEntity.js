@@ -15,4 +15,12 @@ class ScreenEntity
         this.rot = rot;             // Rotation in degrees
         this.aabb = new AABB();     // Axis aligned bounding box encompassing the whole visible entity
     }
+
+    // setPos
+    /////////////////////////////////////////////////////////////////////////
+
+    setPos(pos)
+    {
+        this.pos = new Vec2(pos.x, pos.y);
+    }
 }
