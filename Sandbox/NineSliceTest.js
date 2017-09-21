@@ -12,7 +12,7 @@ const urls = [ "http://html5.sylwander.com/framework/data/textures/UI/NineSliceT
                "http://html5.sylwander.com/framework/data/textures/UI/NineSliceTemplates/PostItSmall/PostItSmall_08.png",
                "http://html5.sylwander.com/framework/data/textures/UI/NineSliceTemplates/PostItSmall/PostItSmall_09.png" ];
 
-let widget = new NineSliceWidget(new Vec2(100,100), 0, new Vec2(200,200), urls);
+let widget = new NineSliceWidget(new Vec2(100,100), 0, new Vec2(300,300), urls);
 
 // Create canvas
 /////////////////////////////////////////////////////////////////////////
@@ -69,12 +69,12 @@ function handleMouseMove(e)
 
 widgetWidth.onchange = widgetWidth.oninput = function()
 {
-    widget.setInnerSize(new Vec2(parseInt(this.value), widget.innerSize.y));
+    widget.setSize(new Vec2(parseInt(this.value), widget.size.y));
 };
 
 widgetHeight.onchange = widgetHeight.oninput = function()
 {
-    widget.setInnerSize(new Vec2(widget.innerSize.x, parseInt(this.value)));
+    widget.setSize(new Vec2(widget.size.x, parseInt(this.value)));
 };
 
 // Main loop
