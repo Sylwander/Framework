@@ -17,6 +17,10 @@
 // 0, 2, 6, 8 are drawn un-scaled.
 // 1 & 7 scale horizontally, 3 & 5 scale vertically.
 //
+// The width of each texture in a row can differ from other rows,
+// i.e. image 6 can be wider than image 3.
+// But, all images on a row must have the same height.
+//
 /////////////////////////////////////////////////////////////////////////
 
 class NineSliceWidget extends ScreenEntity
@@ -24,15 +28,17 @@ class NineSliceWidget extends ScreenEntity
     // Constructor
     /////////////////////////////////////////////////////////////////////////
 
-    constructor(pos, rot, innerSize, textureUrls)
+    constructor(pos, rot, size, textureUrls)
     {
         super(pos, rot);
 
-        this.innerSize = innerSize;
+        this.size = size;
+        this.minSize = null;
         this.slicePositions = [];
         this.sliceSizes = [];
         this.textures = new TextureCollection(textureUrls);        
         this.textures.loadTextures(this.onTexturesLoaded.bind(this));
+        this.drawDebug = false;
     }
 
     // setPos
@@ -45,22 +51,44 @@ class NineSliceWidget extends ScreenEntity
         this.updateSlices();
     }
 
-    // setInnerSize
+    // setSize
     /////////////////////////////////////////////////////////////////////////
 
     setSize(size)
     {
-        // TODO: Implement this function and remove setInnerSize
-    }
-
-    // setInnerSize
-    /////////////////////////////////////////////////////////////////////////
-
-    setInnerSize(innerSize)
-    {
-        this.innerSize = new Vec2(innerSize.x, innerSize.y);
+        this.size = new Vec2(Math.max(this.minSize.x, size.x),
+                             Math.max(this.minSize.y, size.y));
         this.updateAABB();
         this.updateSlices();
+    }
+
+    // calcMinSize
+    /////////////////////////////////////////////////////////////////////////
+
+    calcMinSize()
+    {
+        if (this.textures.numTextures != 9)
+            return;
+
+        const tc = this.textures;
+
+        let minWidth = Math.max(tc.textures[0].img.width + tc.textures[2].img.width,
+                                tc.textures[3].img.width + tc.textures[5].img.width,
+                                tc.textures[6].img.width + tc.textures[8].img.width);
+
+        let minHeight = Math.max(tc.textures[0].img.height + tc.textures[6].img.height,
+                                tc.textures[1].img.height + tc.textures[7].img.height,
+                                tc.textures[2].img.height + tc.textures[8].img.height);
+
+        this.minSize = new Vec2(minWidth, minHeight);
+    }
+
+    // setDrawDebug
+    /////////////////////////////////////////////////////////////////////////
+
+    setDrawDebug(drawDebug)
+    {
+        this.drawDebug = drawDebug;
     }
 
     // onTextureLoaded
@@ -74,6 +102,8 @@ class NineSliceWidget extends ScreenEntity
             return;
         }
 
+        this.calcMinSize();
+        this.setSize(this.size);
         this.updateAABB();
         this.updateSlices();
 
@@ -85,15 +115,8 @@ class NineSliceWidget extends ScreenEntity
 
     updateAABB()
     {
-        if (this.textures.numTextures != 9)
-            return;
-
-        const tc = this.textures;
-        const totalWidth = tc.textures[0].img.width + this.innerSize.x + tc.textures[2].img.width;
-        const totalHeight = tc.textures[0].img.height + this.innerSize.y + tc.textures[6].img.height;
-
         this.aabb.min = new Vec2(this.pos.x, this.pos.y);
-        this.aabb.max = new Vec2(this.pos.x + totalWidth, this.pos.y + totalHeight);
+        this.aabb.max = new Vec2(this.pos.x + this.size.x, this.pos.y + this.size.y);
     }
 
     // updateSlices
@@ -105,33 +128,34 @@ class NineSliceWidget extends ScreenEntity
             return;
 
         const tc = this.textures;
-        const totalWidth = tc.textures[3].img.width + this.innerSize.x + tc.textures[5].img.width;
         let pos = new Vec2(this.pos.x, this.pos.y);
 
         this.slicePositions = [];
         this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x += tc.textures[0].img.width;
-        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x = this.pos.x + totalWidth - tc.textures[2].img.width; //pos.x += this.innerSize.x;
-        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x = this.pos.x;                 pos.y += tc.textures[0].img.height;
+        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x = this.pos.x + this.size.x - tc.textures[2].img.width;
+        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x = this.pos.x;         pos.y += tc.textures[0].img.height;
 
         this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x += tc.textures[3].img.width;
-        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x += this.innerSize.x;
-        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x = this.pos.x;                 pos.y += this.innerSize.y;
+        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x = this.pos.x + this.size.x - tc.textures[5].img.width;
+        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x = this.pos.x;         pos.y = this.pos.y + this.size.y - tc.textures[6].img.height;
 
         this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x += tc.textures[6].img.width;
-        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x = this.pos.x + totalWidth - tc.textures[8].img.width; //pos.x += this.innerSize.x;
+        this.slicePositions.push(new Vec2(pos.x, pos.y));   pos.x = this.pos.x + this.size.x - tc.textures[8].img.width;
         this.slicePositions.push(new Vec2(pos.x, pos.y));
+
+        const midSectionHeight = this.size.y - tc.textures[0].img.height - tc.textures[6].img.height;
 
         this.sliceSizes = [ 
                             new Vec2(tc.textures[0].img.width, tc.textures[0].img.height),
-                            new Vec2(totalWidth - tc.textures[0].img.width - tc.textures[2].img.width, tc.textures[1].img.height),
+                            new Vec2(this.size.x - tc.textures[0].img.width - tc.textures[2].img.width, tc.textures[1].img.height),
                             new Vec2(tc.textures[2].img.width, tc.textures[2].img.height),
                             
-                            new Vec2(tc.textures[3].img.width, this.innerSize.y),
-                            new Vec2(this.innerSize.x, this.innerSize.y),
-                            new Vec2(tc.textures[5].img.width, this.innerSize.y),
+                            new Vec2(tc.textures[3].img.width, midSectionHeight),
+                            new Vec2(this.size.x - tc.textures[3].img.width - tc.textures[5].img.width, midSectionHeight),
+                            new Vec2(tc.textures[5].img.width, midSectionHeight),
                         
                             new Vec2(tc.textures[6].img.width, tc.textures[6].img.height),
-                            new Vec2(totalWidth - tc.textures[6].img.width - tc.textures[8].img.width, tc.textures[7].img.height),
+                            new Vec2(this.size.x - tc.textures[6].img.width - tc.textures[8].img.width, tc.textures[7].img.height),
                             new Vec2(tc.textures[8].img.width, tc.textures[8].img.height)
                           ];
     }
@@ -146,19 +170,17 @@ class NineSliceWidget extends ScreenEntity
             this.sliceSizes.length != 9)
             return;
 
-        const drawDebug = false;
-
         for (var i = 0; i < this.textures.numTextures; i++)
         {
-            let tex = this.textures.textures[i].img;
+            const tex = this.textures.textures[i].img;
             ctx.drawImage(tex, this.slicePositions[i].x, this.slicePositions[i].y, this.sliceSizes[i].x, this.sliceSizes[i].y);
 
-            if (drawDebug)
+            if (this.drawDebug)
             {
                 ctx.beginPath();
                 ctx.rect(this.slicePositions[i].x + 0.5, this.slicePositions[i].y + 0.5, this.sliceSizes[i].x, this.sliceSizes[i].y);
                 ctx.lineWidth = 1;
-                ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
                 ctx.stroke();
             }
         }

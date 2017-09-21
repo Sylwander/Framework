@@ -1,5 +1,5 @@
 
-// Create NineSliceWidget
+// Create AnimatedNineSliceWidget
 /////////////////////////////////////////////////////////////////////////
 
 const foregroundUrls = [ "../Data/Raw/UI/NineSliceTemplates/PostIt/PostItForeground/images/PostItSmallForeground_01.png",
@@ -22,10 +22,7 @@ const backgroundUrls = [ "../Data/Raw/UI/NineSliceTemplates/PostIt/PostItDropSha
                         "../Data/Raw/UI/NineSliceTemplates/PostIt/PostItDropShadow/images/PostItDropshadow_08.png",
                         "../Data/Raw/UI/NineSliceTemplates/PostIt/PostItDropShadow/images/PostItDropshadow_09.png" ];
 
-let widget = new NineSliceWidget(new Vec2(100,100), 0, new Vec2(225,150), foregroundUrls);
-let widget2 = new NineSliceWidget(new Vec2(100,500), 0, new Vec2(225,150), backgroundUrls);
-
-let animWidget = new AnimatedNineSliceWidget(new Vec2(500,100), 0, new Vec2(225,150), foregroundUrls, backgroundUrls);
+let animWidget = new AnimatedNineSliceWidget(new Vec2(500,100), 0, new Vec2(300,300), foregroundUrls, backgroundUrls);
 
 // Create canvas
 /////////////////////////////////////////////////////////////////////////
@@ -79,17 +76,22 @@ function handleMouseMove(e)
     }
 };
 
-// Widget size sliders
+// Widget inputs
 /////////////////////////////////////////////////////////////////////////
 
 widgetWidth.onchange = widgetWidth.oninput = function()
 {
-    widget.setInnerSize(new Vec2(parseInt(this.value), widget.innerSize.y));
+    animWidget.setSize(new Vec2(parseInt(this.value), animWidget.size.y));
 };
 
 widgetHeight.onchange = widgetHeight.oninput = function()
 {
-    widget.setInnerSize(new Vec2(widget.innerSize.x, parseInt(this.value)));
+    animWidget.setSize(new Vec2(animWidget.size.x, parseInt(this.value)));
+};
+
+widgetDebug.onchange = widgetDebug.oninput = function()
+{
+    animWidget.setDrawDebug(this.checked);
 };
 
 // Main loop
@@ -99,9 +101,6 @@ function main()
 {
     ctx.fillStyle = "#666666";
     ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-
-    // widget2.draw(ctx);
-    // widget.draw(ctx);
 
     animWidget.update(1/60);
     animWidget.draw(ctx);

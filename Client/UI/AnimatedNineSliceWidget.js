@@ -17,11 +17,11 @@ class AnimatedNineSliceWidget extends NineSliceWidget
     // Constructor
     /////////////////////////////////////////////////////////////////////////
 
-    constructor(pos, rot, innerSize, textureUrls, dropShadowTextureUrls)
+    constructor(pos, rot, size, foregroundUrls, dropShadowTextureUrls)
     {
-        super(pos, rot, innerSize, textureUrls);
+        super(pos, rot, size, foregroundUrls);
 
-        this.dropShadowNineSlice = new NineSliceWidget(pos, rot, new Vec2(innerSize.x, innerSize.y + 65), dropShadowTextureUrls); // TODO: Remove offset when widget size can be set
+        this.dropShadowNineSlice = new NineSliceWidget(pos, rot, new Vec2(size.x, size.y), dropShadowTextureUrls);
         this.dropShadowOffset = new Vec2(0,0);
         this.dropShadowTargetOffset = new Vec2(0,0);
     }
@@ -33,6 +33,24 @@ class AnimatedNineSliceWidget extends NineSliceWidget
     {
         super.setPos(pos);
         this.dropShadowNineSlice.setPos(pos);
+    }
+
+    // setSize
+    /////////////////////////////////////////////////////////////////////////
+
+    setSize(size)
+    {
+        super.setSize(size);
+        this.dropShadowNineSlice.setSize(size);
+    }
+
+    // setDrawDebug
+    /////////////////////////////////////////////////////////////////////////
+
+    setDrawDebug(drawDebug)
+    {
+        super.setDrawDebug(drawDebug);
+        this.dropShadowNineSlice.setDrawDebug(drawDebug);
     }
 
     // onMouseDown
